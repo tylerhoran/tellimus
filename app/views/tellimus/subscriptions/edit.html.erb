@@ -1,0 +1,7 @@
+<% if params['update'] == 'card' %>
+  <%= render 'card', title: t('tellimus.payment.update_payment_information'), url: owner_subscription_path(@owner, @subscription) %>
+<% else %>
+  <h1><%= t('tellimus.subscriptions.which_plan_is_best') %></h1>
+  <%= render 'pricing_table' %>
+  <p><%= t('tellimus.subscriptions.cancel_your_subscription_note_html', :link => (link_to t('koudoku.subscriptions.cancel_your_subscription'), cancel_owner_subscription_path(@owner, @subscription), method: :post)) %></p>
+<% end %>

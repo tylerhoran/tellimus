@@ -1,0 +1,27 @@
+<script>
+  braintree.setup("<%= @braintree_client_token %>", "dropin", {
+    container: "form-fieldset",
+    onPaymentMethodReceived: function(response) {
+      var form = document.getElementById("payment-form");
+      var token = document.createElement("input");
+      token.setAttribute('type', 'hidden');
+      token.setAttribute('name', 'subscription[credit_card_token]');
+      token.setAttribute('value', response.nonce);
+      form.appendChild(token);
+
+      var lastTwo = document.createElement("input");
+      lastTwo.setAttribute('type', 'hidden');
+      lastTwo.setAttribute('name', 'subscription[last_two]');
+      lastTwo.setAttribute('value', response.details.lastTwo);
+      form.appendChild(lastTwo);
+
+      var cardType = document.createElement("input");
+      cardType.setAttribute('type', 'hidden');
+      cardType.setAttribute('name', 'subscription[card_type]');
+      cardType.setAttribute('value', response.details.cardType);
+      form.appendChild(cardType);
+
+      form.submit();
+    }
+  });
+</script>
