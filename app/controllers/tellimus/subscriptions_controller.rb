@@ -124,6 +124,7 @@ module Tellimus
     def create
 
       @subscription = ::Subscription.new(subscription_params)
+      @subscription.payment_method_nonce = params[:payment_method_nonce]
       @subscription.subscription_owner = @owner
 
       if @subscription.save
@@ -150,6 +151,7 @@ module Tellimus
     end
 
     def update
+      @subscription.payment_method_nonce = params[:payment_method_nonce]
       if @subscription.update(subscription_params)
         flash[:notice] = I18n.t('tellimus.confirmations.subscription_updated')
         redirect_to owner_subscription_path(@owner, @subscription)

@@ -5,7 +5,7 @@ require 'rails/all'
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 Bundler.require
-require "koudoku"
+require "tellimus"
 
 module Dummy
   class Application < Rails::Application

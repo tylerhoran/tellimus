@@ -1,7 +1,7 @@
 class Plan < ActiveRecord::Base
 
-  include Koudoku::Plan
-  belongs_to :customer
+  include Tellimus::Plan
+  belongs_to :user
   has_many :subscriptions
 
 end

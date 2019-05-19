@@ -35,7 +35,7 @@ module Tellimus
       template "config/initializers/tellimus.rb"
 
       # Generate subscription.
-      generate("model", "subscription braintree_id:string braintree_customer_id:string plan_id:integer last_two:string card_type:string current_price:float #{subscription_owner_model}_id:integer")
+      generate("model", "subscription braintree_id:string braintree_customer_id:string plan_id:integer payment_signature:string payment_type:string current_price:float #{subscription_owner_model}_id:integer")
       template "app/models/subscription.rb"
 
       # Add the plans.

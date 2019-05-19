@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  mount Koudoku::Engine, at: "koudoku"
-  scope module: 'koudoku' do
+  mount Tellimus::Engine, at: "tellimus"
+  scope module: 'tellimus' do
     get 'pricing' => 'subscriptions#index', as: 'pricing'
   end
 end

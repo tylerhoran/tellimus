@@ -11,5 +11,5 @@
 <br><br>
 
 <h4><%= t('tellimus.payment.payment_information') %></h4>
-<p><%= t('tellimus.payment.card_on_file_with_last_two', :last_two => @subscription.last_two) %></p>
+<p><%= t('tellimus.payment.card_on_file', payment_signature: @subscription.payment_signature, payment_type: @subscription.payment_type) %></p>
 <%= link_to t('tellimus.payment.update_payment_information'), edit_owner_subscription_path(@owner, @subscription, update: 'card'), class: 'btn' %>

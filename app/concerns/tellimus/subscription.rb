@@ -5,14 +5,13 @@ module Tellimus::Subscription
 
     # We don't store these one-time use tokens, but this is what Braintree provides
     # client-side after storing the credit card information.
-    attr_accessor :credit_card_token
+    attr_accessor :payment_method_nonce
 
     belongs_to :plan, optional: true
 
     # update details.
     before_save :processing!
     def processing!
-
       # if their package level has changed ..
       if changing_plans?
 
@@ -56,6 +55,7 @@ module Tellimus::Subscription
 
         # when customer DOES NOT exist in braintree ..
         else
+
           # if a new plan has been selected
           if self.plan.present?
 
@@ -64,11 +64,11 @@ module Tellimus::Subscription
 
             prepare_for_new_subscription
             prepare_for_upgrade
-            #begin
-              raise Tellimus::NilCardToken, "No card token received. Check for JavaScript errors breaking Braintree.js on the previous page." unless credit_card_token.present?
+            begin
+              raise Tellimus::NilCardToken, "No card token received. Check for JavaScript errors breaking Braintree.js on the previous page." unless payment_method_nonce.present?
               customer_attributes = {
                 email: subscription_owner_email,
-                payment_method_nonce: credit_card_token
+                payment_method_nonce: payment_method_nonce
               }
 
               # create a customer at that package level.
@@ -80,8 +80,10 @@ module Tellimus::Subscription
               end
 
               finalize_new_customer!(result.customer.id, plan.price)
+              payment_method = result.customer.payment_methods.last
+
               subscription_result = Tellimus.gateway.subscription.create(
-                payment_method_token: result.customer.credit_cards.first.token,
+                payment_method_token: payment_method.token,
                 plan_id: self.plan.braintree_id
               )
 
@@ -94,12 +96,20 @@ module Tellimus::Subscription
             self.braintree_customer_id = result.customer.id
             self.braintree_id = subscription_result.subscription.id
 
+            if payment_method.class == Braintree::PayPalAccount
+              self.payment_signature = payment_method.email
+              self.payment_type = "Paypal"
+            else
+              self.payment_signature = payment_method.last_4
+              self.payment_type = payment_method.card_type
+            end
+
             finalize_new_subscription!
             finalize_upgrade!
-            #rescue StandardError => e
-            #  errors[:base] << e
-            #  return false
-            #end
+            rescue StandardError => e
+              errors[:base] << e
+              return false
+            end
           else
 
             # This should never happen.
@@ -116,22 +126,37 @@ module Tellimus::Subscription
         finalize_plan_change!
 
       # if they're updating their credit card details.
-      elsif self.credit_card_token.present?
+      elsif self.payment_method_nonce.present?
 
         prepare_for_card_update
 
         # fetch the customer.
         customer = Tellimus.gateway.customer.find(self.braintree_customer_id)
-        subscription = Tellimus.gateway.subscription.update(
+        payment_method_response = Tellimus.gateway.payment_method.create(
+          :customer_id => self.braintree_customer_id,
+          :payment_method_nonce => self.payment_method_nonce
+        )
+        subscription_response = Tellimus.gateway.subscription.update(
           self.braintree_id,
-          payment_method_nonce: self.credit_card_token
+          payment_method_token: payment_method_response.payment_method.token,
         )
 
-        unless subscription.success?
-          errors[:base] << subscription.errors
+        unless subscription_response.success?
+          errors[:base] << subscription_response.errors
           card_was_declined
           return false
         end
+
+        payment_method_token = subscription_response.subscription.payment_method_token
+        payment_method = Tellimus.gateway.payment_method.find(payment_method_token)
+        if payment_method.class == Braintree::PayPalAccount
+          self.payment_signature = payment_method.email
+          self.payment_type = "Paypal"
+        else
+          self.payment_signature = payment_method.last_4
+          self.payment_type = payment_method.card_type
+        end
+
 
         finalize_card_update!
 

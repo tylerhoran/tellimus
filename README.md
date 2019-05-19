@@ -10,16 +10,17 @@ Include the following in your `Gemfile`:
     gem 'tellimus'
 ```
 
-After running `bundle install`, you can run a Rails generator to do the rest. Before installing, the model you'd like to have own subscriptions must already exist. (In many cases this will be `user`. It may also be something like `company`, etc.)
+After running `bundle install`, you can run a Rails generator to do the rest.  You should have a user model.
 
 ```ruby
-    rails g tellimus:install user
+    rails g tellimus:install
     rake db:migrate
 ```
 
 Add the following to `app/views/layouts/application.html.erb` before your `<head>` tag closes:
 
 ```ruby
+    <script src="https://js.braintreegateway.com/js/braintree-2.32.1.min.js"></script>
     <%= yield :tellimus %>
 ```
 
@@ -80,18 +81,13 @@ You can supply your publishable and secret API keys in `config/initializers/tell
 In a bash shell, you can set them in `~/.bash_profile` like so:
 
 ```bash
-    export BRAINTREE_PUBLISHABLE_KEY=pk_0CJwDH9sdh98f79FDHDOjdiOxQob0
-    export BRAINTREE_SECRET_KEY=sk_0CJwFDIUshdfh97JDJOjZ5OIDjOCH
+    export BRAINTREE_PUBLIC_KEY=pk_0CJwDH9sdh98f79FDHDOjdiOxQob0
+    export BRAINTREE_PRIVATE_KEY=sk_0CJwFDIUshdfh97JDJOjZ5OIDjOCH
+    export BRAINTREE_MERCHANT_ID=2dj90d2j3dhnxn2
+    export BRAINTREE_ENVIRONMENT="sandbox"
 ```
 
 (Reload your terminal for these settings to take effect.)
-
-On Heroku you accomplish this same effect with [Config Vars](https://devcenter.heroku.com/articles/config-vars):
-
-```bash
-    heroku config:add BRAINTREE_PUBLISHABLE_KEY=pk_0CJwDH9sdh98f79FDHDOjdiOxQob0
-    heroku config:add BRAINTREE_SECRET_KEY=sk_0CJwFDIUshdfh97JDJOjZ5OIDjOCH
-```
 
 ## User-Facing Subscription Management
 

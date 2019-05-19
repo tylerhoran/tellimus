@@ -7,7 +7,7 @@ describe Tellimus::SubscriptionsController do
       allow_any_instance_of(ApplicationController).to receive(:current_customer).and_return(@customer)
     end
     it 'works' do
-      get :index, use_route: 'koudoku'
+      get :index, use_route: 'tellimus'
     end
   end
   describe 'when customer is not signed in' do

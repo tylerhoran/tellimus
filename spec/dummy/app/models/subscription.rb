@@ -1,6 +1,6 @@
 class Subscription < ActiveRecord::Base
-  include Koudoku::Subscription
+  include Tellimus::Subscription
 
-  belongs_to :customer
+  belongs_to :user
 
 end

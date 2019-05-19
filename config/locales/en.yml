@@ -25,7 +25,7 @@ en:
     payment:
       cancel: "Cancel"
       card_number: "Card Number"
-      card_on_file_with_last_two: "The card on file for your account ends with %{last_two}."
+      card_on_file: "The %{payment_type} on file for your account: %{payment_signature}."
       cvc: "CVC"
       expiration: "Expiration (MM/YYYY)"
       payment_information: "Payment Information"
