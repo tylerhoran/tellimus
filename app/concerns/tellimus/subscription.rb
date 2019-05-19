@@ -32,7 +32,7 @@ module Tellimus::Subscription
             # update the package level with braintree.
             Tellimus.gateway.subscription.update(
               self.braintree_id,
-              plan_id: self.plan.braintree_id
+              plan_id: self.plan.braintree_id,
               prorate_charges: true,
               price: self.plan.price
             )
