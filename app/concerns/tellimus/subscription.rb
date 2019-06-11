@@ -11,6 +11,8 @@ module Tellimus::Subscription
 
     # update details.
     before_save :processing!
+    before_destroy :cancelling!
+
     def processing!
       # if their package level has changed ..
       if changing_plans?
@@ -33,8 +35,10 @@ module Tellimus::Subscription
             Tellimus.gateway.subscription.update(
               self.braintree_id,
               plan_id: self.plan.braintree_id,
-              prorate_charges: true,
-              price: self.plan.price
+              price: self.plan.price,
+              options: {
+                prorate_charges: true,
+              }
             )
 
             finalize_downgrade! if downgrading?
@@ -166,6 +170,9 @@ module Tellimus::Subscription
     end
   end
 
+  def cancelling!
+    Tellimus.gateway.subscription.cancel(self.braintree_id)
+  end
 
   def describe_difference(plan_to_describe)
     if plan.nil?
